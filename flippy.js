@@ -20,9 +20,7 @@ const screenshotMode = params.get("shot") === "1";
 const sprites = {
   birdUp: loadImage("assets/flippy-bird-up.svg"),
   birdMid: loadImage("assets/flippy-bird-mid.svg"),
-  birdDown: loadImage("assets/flippy-bird-down.svg"),
-  pipeTop: loadImage("assets/pipe-top.png"),
-  pipeBottom: loadImage("assets/pipe-bottom.png")
+  birdDown: loadImage("assets/flippy-bird-down.svg")
 };
 
 document.documentElement.dataset.lab = String(labEnabled);
@@ -252,6 +250,7 @@ function drawSky() {
   for (let i = 0; i < 8; i += 1) {
     const x = (i * 141 + state.lastTime * 0.012) % (state.width + 120) - 60;
     const y = 88 + (i % 4) * 54;
+    if (x < 86 && y < 130) continue;
     context.beginPath();
     context.ellipse(x, y, 42, 10, 0, 0, Math.PI * 2);
     context.ellipse(x + 28, y + 3, 32, 8, 0, 0, Math.PI * 2);
@@ -376,8 +375,9 @@ function drawPrompt() {
   context.save();
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillStyle = "rgba(255, 255, 255, 0.58)";
-  context.fillRect(state.width / 2 - 132, y - 30, 264, 60);
+  context.shadowColor = "rgba(29, 44, 50, 0.32)";
+  context.shadowBlur = 8;
+  context.shadowOffsetY = 2;
   context.fillStyle = "#1d2c32";
   context.font = "800 22px system-ui, sans-serif";
   const title = state.deviceAllowed || labEnabled
@@ -386,6 +386,8 @@ function drawPrompt() {
       : "Fold to start"
     : "Flip phone required";
   context.fillText(title, state.width / 2, y - 6);
+  context.shadowBlur = 0;
+  context.shadowOffsetY = 0;
   context.fillStyle = "rgba(29, 44, 50, 0.7)";
   context.font = "600 13px system-ui, sans-serif";
   context.fillText(
