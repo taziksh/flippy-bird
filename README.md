@@ -1,6 +1,6 @@
 # Flippy Bird
 
-A flip-phone exclusive version of the fold-controlled bird game for Chrome.
+A flip-phone-first version of the fold-controlled bird game for Chrome.
 
 ![Flippy Bird gameplay screenshot](assets/gameplay-screenshot.jpg)
 
@@ -19,13 +19,15 @@ chrome://flags/#enable-experimental-web-platform-features
 
 The game starts when Chrome exposes a real top-bottom segmented viewport, which is the Flip-style hinge path. If Chrome exposes `devicePosture: folded` but not segment geometry, the game falls back to a centered horizontal hinge on tall/narrow viewports so Samsung Flip and Motorola Razr-style devices still have a chance to run.
 
+If a likely Android Chrome phone does not expose fold sensors at all, the game unlocks with touch fallback instead of hard-failing. Desktop remains locked unless lab mode is explicitly enabled.
+
 For desktop testing only, add lab mode:
 
 ```text
 http://localhost:4173/?lab=1&emulate=flip
 ```
 
-Lab mode exposes the desktop slider, tapping, and Space key so the game behavior can still be tested when foldable APIs are unavailable. The normal URL is locked on non-Flip devices.
+Lab mode exposes the desktop slider, tapping, and Space key so the game behavior can still be tested when foldable APIs are unavailable. The normal URL is locked on desktop.
 
 ## Assets
 

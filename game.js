@@ -53,6 +53,7 @@ const state = {
       ? "flip"
       : "off",
   deviceAllowed: false,
+  softFallback: false,
   fold: {
     active: false,
     axis: "none",
@@ -93,7 +94,7 @@ function resetGame() {
   scoreOutput.value = "0";
   spawnPipe(state.width + 170);
   if (state.deviceAllowed || labEnabled) {
-    updateStatus("Ready", "Fold a flip phone to start.");
+    updateStatus("Ready", state.softFallback ? "Tap to start; fold sensor unavailable." : "Fold a flip phone to start.");
   } else {
     updateStatus("Flip phone required", "Open on Chrome with a top-bottom foldable screen.");
   }
@@ -455,7 +456,7 @@ function updateCompatibilityPanel() {
   compatPanel.hidden = false;
   compatTitle.textContent = "Flip phone required";
   compatDetail.textContent =
-    "Open this in Chrome on the main screen of a Flip-style foldable, then bend it into laptop mode.";
+    "Open this in Chrome on the main screen of a Flip-style foldable. Android Chrome can use touch fallback if the fold sensor is unavailable.";
 }
 
 function getEmulatedSegments() {
@@ -519,6 +520,16 @@ function getCssSegments() {
   return [];
 }
 
+function isLikelyAndroidChromePhone() {
+  const ua = navigator.userAgent;
+  const isAndroid = /\bAndroid\b/i.test(ua);
+  const isChromium = /\bChrome\/\d+/i.test(ua) || /\bCriOS\/\d+/i.test(ua);
+  const excluded = /\b(EdgA|OPR|SamsungBrowser|Firefox|FxiOS)\b/i.test(ua);
+  const touchCapable = navigator.maxTouchPoints > 0 || matchMedia("(pointer: coarse)").matches;
+  const tallPhoneViewport = state.height >= state.width * 1.35 && state.width <= 540;
+  return isAndroid && isChromium && !excluded && touchCapable && tallPhoneViewport;
+}
+
 function setMode(mode) {
   if (!labEnabled) return;
   state.simMode = mode;
@@ -555,6 +566,7 @@ function writeDebug(browserSegments, emulatedSegments) {
       },
       fold: state.fold,
       deviceAllowed: state.deviceAllowed,
+      softFallback: state.softFallback,
       viewport: {
         width: state.width,
         height: state.height,
@@ -641,7 +653,21 @@ function readFoldState() {
     };
   }
 
-  state.deviceAllowed = state.fold.active && state.fold.axis === "horizontal" && state.fold.source !== "fold lab";
+  state.softFallback = !labEnabled && !state.fold.active && isLikelyAndroidChromePhone();
+  if (state.softFallback) {
+    state.fold = {
+      active: false,
+      axis: "touch fallback",
+      hingeStart: 0,
+      hingeSize: 0,
+      ratio: 0.5,
+      source: "touch fallback",
+      posture: state.fold.posture
+    };
+  }
+  state.deviceAllowed =
+    state.softFallback ||
+    (state.fold.active && state.fold.axis === "horizontal" && state.fold.source !== "fold lab");
   updateFoldDataset();
   writeDebug(browserSegments, emulatedSegments);
   updateCompatibilityPanel();
@@ -654,6 +680,8 @@ function readFoldState() {
   const axisText = state.fold.axis === "horizontal" ? "flip hinge detected" : "fold input ready";
   const postureText = !state.deviceAllowed && !labEnabled
     ? "Flip phone required"
+    : state.softFallback
+      ? "Touch fallback"
     : state.fold.source.includes("lab")
     ? axisText
     : state.fold.posture === "unknown"
@@ -661,6 +689,8 @@ function readFoldState() {
       : `${state.fold.posture} posture`;
   const detail = !state.deviceAllowed && !labEnabled
     ? "Open on Chrome with a top-bottom foldable screen."
+    : state.softFallback
+      ? `fold sensor unavailable; best ${state.best}.`
     : `${state.fold.source}; best ${state.best}.`;
   updateStatus(postureText, detail);
 }
@@ -681,11 +711,11 @@ navigator.devicePosture?.addEventListener("change", handlePostureChange);
 
 window.addEventListener("pointerdown", (event) => {
   if (event.target === restartButton || event.target === foldSlider || event.target.closest(".mode-tabs")) return;
-  if (labEnabled) flap(1);
+  if (labEnabled || state.softFallback) flap(1);
 });
 
 window.addEventListener("keydown", (event) => {
-  if (labEnabled && (event.code === "Space" || event.code === "ArrowUp")) {
+  if ((labEnabled || state.softFallback) && (event.code === "Space" || event.code === "ArrowUp")) {
     event.preventDefault();
     flap(1);
   }
