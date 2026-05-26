@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Flippy Bird</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="compat-panel" id="compatPanel">
+        <p class="kicker">Flip phone check</p>
+        <h2 id="compatTitle">Checking this screen</h2>
+        <p id="compatDetail">This game opens only on Chrome when a top-bottom foldable viewport is available.</p>
+      </section>
+
+      <canvas id="game" aria-label="Flippy Bird game canvas"></canvas>
+
+      <section class="hud" aria-live="polite">
+        <div>
+          <p class="kicker">Chrome foldable game</p>
+          <h1>Flippy Bird</h1>
+        </div>
+        <output id="score">0</output>
+      </section>
+
+      <section class="status-panel" id="statusPanel">
+        <div>
+          <strong id="postureLabel">Waiting for fold input</strong>
+          <span id="segmentLabel">Tap, press Space, or bend a flip phone.</span>
+        </div>
+        <button id="restartButton" type="button" title="Restart game">Restart</button>
+      </section>
+
+      <section class="sim-panel" aria-label="Desktop fold simulator">
+        <div class="mode-tabs" role="group" aria-label="Fold emulation mode">
+          <button class="mode-button" data-mode="off" type="button">Off</button>
+          <button class="mode-button" data-mode="flip" type="button">Flip</button>
+          <button class="mode-button" data-mode="fold" type="button">Fold</button>
+        </div>
+        <input id="foldSlider" type="range" min="0" max="100" value="50">
+      </section>
+
+      <pre class="debug-panel" id="debugPanel" hidden></pre>
+      <div class="segment-probe" id="segmentProbe00" aria-hidden="true"></div>
+      <div class="segment-probe" id="segmentProbe01" aria-hidden="true"></div>
+      <div class="segment-probe" id="segmentProbe10" aria-hidden="true"></div>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
