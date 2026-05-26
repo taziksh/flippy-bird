@@ -2,6 +2,8 @@
 
 A flip-phone exclusive version of the fold-controlled bird game for Chrome.
 
+![Flippy Bird gameplay screenshot](assets/gameplay-screenshot.jpg)
+
 Open `index.html` in Chrome. On foldables, Chrome can expose:
 
 - `navigator.devicePosture` for folded or continuous posture changes.

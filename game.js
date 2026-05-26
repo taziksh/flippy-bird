@@ -43,6 +43,7 @@ const state = {
   best: Number(localStorage.getItem("flippy-best") || 0),
   running: false,
   gameOver: false,
+  canAutoFlap: false,
   lastTime: 0,
   lastFoldAt: 0,
   lastFoldRatio: 0.5,
@@ -646,7 +647,7 @@ function readFoldState() {
   updateCompatibilityPanel();
 
   const ratioDelta = Math.abs(state.fold.ratio - previousRatio);
-  if (ratioDelta > 0.055 && performance.now() - state.lastFoldAt > 170) {
+  if (state.canAutoFlap && ratioDelta > 0.055 && performance.now() - state.lastFoldAt > 170) {
     flap(Math.min(2.2, ratioDelta * 12));
   }
 
@@ -670,8 +671,10 @@ function handlePostureChange() {
 }
 
 window.addEventListener("resize", resize);
-window.viewport?.addEventListener("segmentschange", readFoldState);
-window.viewport?.addEventListener("resize", readFoldState);
+if (typeof window.viewport?.addEventListener === "function") {
+  window.viewport.addEventListener("segmentschange", readFoldState);
+  window.viewport.addEventListener("resize", readFoldState);
+}
 window.visualViewport?.addEventListener("resize", readFoldState);
 window.visualViewport?.addEventListener("scroll", readFoldState);
 navigator.devicePosture?.addEventListener("change", handlePostureChange);
@@ -713,4 +716,5 @@ window.__FLIPPY_TEST__ = {
 resize();
 setMode(state.simMode);
 resetGame();
+state.canAutoFlap = true;
 requestAnimationFrame(update);
