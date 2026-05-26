@@ -144,6 +144,10 @@ h1 {
   backdrop-filter: blur(10px);
 }
 
+.status-panel[hidden] {
+  display: none;
+}
+
 .status-panel div {
   display: grid;
   gap: 2px;
@@ -193,6 +197,10 @@ h1 {
 
 :root[data-lab="true"] .sim-panel {
   display: grid;
+}
+
+:root[data-shot="true"] .sim-panel {
+  display: none;
 }
 
 .mode-tabs {
@@ -300,7 +308,7 @@ h1 {
 }
 
 :root[data-fold-axis="horizontal"] .status-panel {
-  top: calc((100svh * var(--fold-ratio, 0.5)) + 16px);
+  top: auto;
   bottom: auto;
 }
 

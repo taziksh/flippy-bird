@@ -16,6 +16,7 @@ const segmentProbe10 = document.querySelector("#segmentProbe10");
 const params = new URLSearchParams(window.location.search);
 const debugEnabled = params.has("debug");
 const labEnabled = params.get("lab") === "1";
+const screenshotMode = params.get("shot") === "1";
 const sprites = {
   birdUp: loadImage("assets/flippy-bird-up.svg"),
   birdMid: loadImage("assets/flippy-bird-mid.svg"),
@@ -25,6 +26,7 @@ const sprites = {
 };
 
 document.documentElement.dataset.lab = String(labEnabled);
+document.documentElement.dataset.shot = String(screenshotMode);
 
 function loadImage(src) {
   const image = new Image();
@@ -258,19 +260,7 @@ function drawSky() {
 }
 
 function drawFold() {
-  if (state.fold.active && state.fold.axis === "horizontal") {
-    const y = state.fold.hingeStart;
-    const height = Math.max(6, state.fold.hingeSize || 8);
-    context.fillStyle = "rgba(29, 44, 50, 0.08)";
-    context.fillRect(0, y, state.width, height);
-  } else if (state.fold.active && state.fold.axis === "vertical") {
-    const x = state.fold.hingeStart;
-    const width = Math.max(6, state.fold.hingeSize || 8);
-    context.fillStyle = "rgba(29, 44, 50, 0.08)";
-    context.fillRect(x, 0, width, state.height);
-  } else {
-    return;
-  }
+  return;
 }
 
 function drawPipes() {
@@ -378,7 +368,7 @@ function drawParticles() {
 }
 
 function drawPrompt() {
-  if (state.running || state.gameOver) return;
+  if (state.running || state.gameOver || screenshotMode) return;
   const y =
     state.fold.active && state.fold.axis === "horizontal"
       ? Math.max(130, state.fold.hingeStart * 0.5)
@@ -426,6 +416,7 @@ function burst(x, y, color, count) {
 function updateStatus(title, detail) {
   postureLabel.textContent = title;
   segmentLabel.textContent = detail;
+  statusPanel.hidden = !debugEnabled && !state.gameOver;
 }
 
 function updateCompatibilityPanel() {
