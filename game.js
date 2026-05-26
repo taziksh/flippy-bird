@@ -240,13 +240,13 @@ function draw() {
 
 function drawSky() {
   const gradient = context.createLinearGradient(0, 0, 0, state.height);
-  gradient.addColorStop(0, "#25647e");
-  gradient.addColorStop(0.54, "#2c7a73");
-  gradient.addColorStop(1, "#14201f");
+  gradient.addColorStop(0, "#69c9f2");
+  gradient.addColorStop(0.62, "#79d7f7");
+  gradient.addColorStop(1, "#b6f08a");
   context.fillStyle = gradient;
   context.fillRect(0, 0, state.width, state.height);
 
-  context.fillStyle = "rgba(255, 246, 214, 0.12)";
+  context.fillStyle = "rgba(255, 255, 255, 0.42)";
   for (let i = 0; i < 8; i += 1) {
     const x = (i * 141 + state.lastTime * 0.012) % (state.width + 120) - 60;
     const y = 88 + (i % 4) * 54;
@@ -261,39 +261,15 @@ function drawFold() {
   if (state.fold.active && state.fold.axis === "horizontal") {
     const y = state.fold.hingeStart;
     const height = Math.max(6, state.fold.hingeSize || 8);
-    context.fillStyle = "rgba(7, 9, 10, 0.74)";
+    context.fillStyle = "rgba(29, 44, 50, 0.08)";
     context.fillRect(0, y, state.width, height);
-    context.strokeStyle = "rgba(101, 208, 179, 0.55)";
-    context.lineWidth = 2;
-    context.setLineDash([10, 9]);
-    context.beginPath();
-    context.moveTo(0, y + height / 2);
-    context.lineTo(state.width, y + height / 2);
-    context.stroke();
-    context.setLineDash([]);
   } else if (state.fold.active && state.fold.axis === "vertical") {
     const x = state.fold.hingeStart;
     const width = Math.max(6, state.fold.hingeSize || 8);
-    context.fillStyle = "rgba(7, 9, 10, 0.74)";
+    context.fillStyle = "rgba(29, 44, 50, 0.08)";
     context.fillRect(x, 0, width, state.height);
-    context.strokeStyle = "rgba(101, 208, 179, 0.55)";
-    context.lineWidth = 2;
-    context.setLineDash([10, 9]);
-    context.beginPath();
-    context.moveTo(x + width / 2, 0);
-    context.lineTo(x + width / 2, state.height);
-    context.stroke();
-    context.setLineDash([]);
   } else {
-    const y = state.height * state.fold.ratio;
-    context.strokeStyle = "rgba(101, 208, 179, 0.24)";
-    context.lineWidth = 2;
-    context.setLineDash([8, 10]);
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(state.width, y);
-    context.stroke();
-    context.setLineDash([]);
+    return;
   }
 }
 
@@ -308,34 +284,38 @@ function drawPipes() {
 
 function drawPipe(x, y, width, height, top) {
   if (height <= 0) return;
-  const image = top ? sprites.pipeTop : sprites.pipeBottom;
-  if (image.complete && image.naturalWidth) {
-    context.drawImage(image, x - 7, y, width + 14, height);
-    return;
-  }
-
   const gradient = context.createLinearGradient(x, y, x + width, y);
-  gradient.addColorStop(0, "#26745e");
-  gradient.addColorStop(0.5, "#65d0b3");
-  gradient.addColorStop(1, "#1e5c4b");
+  gradient.addColorStop(0, "#3f9f1d");
+  gradient.addColorStop(0.22, "#74df38");
+  gradient.addColorStop(0.74, "#5fc62b");
+  gradient.addColorStop(1, "#2c7f18");
   context.fillStyle = gradient;
   context.fillRect(x, y, width, height);
-  context.fillStyle = "rgba(246, 242, 232, 0.22)";
-  context.fillRect(x + 8, y, 7, height);
+  context.strokeStyle = "#1f5f14";
+  context.lineWidth = 3;
+  context.strokeRect(x, y, width, height);
+  context.fillStyle = "rgba(255, 255, 255, 0.28)";
+  context.fillRect(x + width * 0.18, y + 3, Math.max(5, width * 0.1), Math.max(0, height - 6));
 
-  const lipHeight = 16;
+  const lipHeight = 20;
   const lipY = top ? y + height - lipHeight : y;
-  context.fillStyle = "#f0c84b";
-  context.fillRect(x - 6, lipY, width + 12, lipHeight);
+  const lipGradient = context.createLinearGradient(x - 8, lipY, x + width + 8, lipY);
+  lipGradient.addColorStop(0, "#3c991c");
+  lipGradient.addColorStop(0.26, "#83e246");
+  lipGradient.addColorStop(0.74, "#65c92d");
+  lipGradient.addColorStop(1, "#287814");
+  context.fillStyle = lipGradient;
+  context.fillRect(x - 8, lipY, width + 16, lipHeight);
+  context.strokeStyle = "#1f5f14";
+  context.lineWidth = 3;
+  context.strokeRect(x - 8, lipY, width + 16, lipHeight);
 }
 
 function drawGround() {
-  context.fillStyle = "#463b2e";
+  context.fillStyle = "#d9b56b";
   context.fillRect(0, state.height - 34, state.width, 34);
-  context.fillStyle = "#f0c84b";
-  for (let x = -40; x < state.width + 40; x += 28) {
-    context.fillRect(x + ((state.lastTime * 0.06) % 28), state.height - 34, 16, 5);
-  }
+  context.fillStyle = "#9bd947";
+  context.fillRect(0, state.height - 40, state.width, 8);
 }
 
 function drawBird() {
@@ -398,6 +378,7 @@ function drawParticles() {
 }
 
 function drawPrompt() {
+  if (state.running || state.gameOver) return;
   const y =
     state.fold.active && state.fold.axis === "horizontal"
       ? Math.max(130, state.fold.hingeStart * 0.5)
@@ -405,22 +386,22 @@ function drawPrompt() {
   context.save();
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillStyle = "rgba(16, 19, 21, 0.48)";
-  context.fillRect(20, y - 42, state.width - 40, 84);
-  context.fillStyle = "#f6f2e8";
+  context.fillStyle = "rgba(255, 255, 255, 0.58)";
+  context.fillRect(state.width / 2 - 132, y - 30, 264, 60);
+  context.fillStyle = "#1d2c32";
   context.font = "800 22px system-ui, sans-serif";
   const title = state.deviceAllowed || labEnabled
     ? state.gameOver
       ? "Fold to retry"
       : "Fold to start"
     : "Flip phone required";
-  context.fillText(title, state.width / 2, y - 10);
-  context.fillStyle = "rgba(246, 242, 232, 0.78)";
+  context.fillText(title, state.width / 2, y - 6);
+  context.fillStyle = "rgba(29, 44, 50, 0.7)";
   context.font = "600 13px system-ui, sans-serif";
   context.fillText(
     state.deviceAllowed || labEnabled ? "Bend the hinge to flap" : "Chrome must expose top-bottom viewport segments",
     state.width / 2,
-    y + 20
+    y + 18
   );
   context.restore();
 }
